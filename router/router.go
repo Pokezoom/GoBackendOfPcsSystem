@@ -4,6 +4,7 @@ import (
 	"GoDockerBuild/internal/controller"
 	"GoDockerBuild/middleware"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -18,4 +19,5 @@ func initProject(r *gin.Engine) {
 	})
 	ProjectRouter := r.Group("/project", middleware.AuthProject())
 	ProjectRouter.POST("", controller.Project.Create)
+	logrus.Debug("路由注册完成")
 }

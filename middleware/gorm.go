@@ -105,12 +105,12 @@ func NewGormConnect(conf config) (*gorm.DB, error) {
 	return db, nil
 }
 
-const dbDSNFormat = "%s:%s@tcp(%s:%d)/%s?parseTime=true&loc=Local"
-
-func (c *Conf) DSN() string {
-	dsn := fmt.Sprintf(dbDSNFormat, c.User, c.Password, c.Host, c.Port, c.Database)
-	if c.Params != "" {
-		dsn = fmt.Sprintf("%s&%s", dsn, c.Params)
-	}
-	return dsn
-}
+//const dbDSNFormat = "%s:%s@tcp(%s:%d)/%s?parseTime=true&loc=Local"
+//
+//func (c *Conf) DSN() string {
+//	dsn := fmt.Sprintf(dbDSNFormat, c.User, c.Password, c.Host, c.Port, c.Database)
+//	if c.Params != "" {
+//		dsn = fmt.Sprintf("%s&%s", dsn, c.Params)
+//	}
+//	return dsn
+//}
