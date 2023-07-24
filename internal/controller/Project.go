@@ -22,9 +22,26 @@ func init() {
 
 func (p ProjectController) Create(context *gin.Context) {
 	req := mode.ProCreate{}
-	context.ShouldBindJSON(&req)
+	err := context.ShouldBindJSON(&req)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, middleware.Response{500, "error", nil})
+		return
+	}
 	fmt.Print("start create!")
-	err := service.Project.CreateProject(req.Name)
+	err = service.Project.CreateProject(req.Name)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, middleware.Response{500, "error", nil})
+		return
+	}
+	context.JSON(http.StatusOK, middleware.Response{200, "", nil})
+
+	return
+}
+func (p ProjectController) Delete(context *gin.Context) {
+	req := mode.ProDel{}
+	context.ShouldBindJSON(&req)
+	fmt.Print("start delete!")
+	err := service.Project.DeleteProject(req.Id)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, middleware.Response{500, "error", nil})
 		return

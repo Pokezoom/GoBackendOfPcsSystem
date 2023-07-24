@@ -19,5 +19,6 @@ func initProject(r *gin.Engine) {
 	})
 	ProjectRouter := r.Group("/project", middleware.AuthProject())
 	ProjectRouter.POST("", controller.Project.Create)
+	ProjectRouter.DELETE("", controller.Project.Delete)
 	logrus.Debug("路由注册完成")
 }

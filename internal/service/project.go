@@ -19,5 +19,9 @@ type ProjectService struct {
 }
 
 func (s ProjectService) CreateProject(name string) error {
-	return s.data.Create(name)
+	return s.data.CreateProject(name)
+}
+
+func (s ProjectService) DeleteProject(id int) error {
+	return s.data.DeleteProject(id)
 }

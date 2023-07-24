@@ -9,17 +9,25 @@ services:
       TZ: Asia/Shanghai
     ports:
       - 3306:3306
-#      - 挂载
-#    volumes:
-#      - /root/docker-compose/mysql/data:/var/lib/mysql
-#      - /root/docker-compose/mysql/config/my.cnf:/etc/mysql/my.cnf
     command:
       --max_connections=1000
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_general_ci
       --default-authentication-plugin=mysql_native_password
 
-#启动命令
-#docker-compose up -d
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - '2181:2181'
 
-
+  kafka:
+    image: 'bitnami/kafka:latest'
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    ports:
+      - '9092:9092'
+    depends_on:
+      - zookeeper
