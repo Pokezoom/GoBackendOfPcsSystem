@@ -16,13 +16,31 @@ var (
 	gormPoolLock sync.RWMutex                   // 连接单例池锁
 )
 
-// 需要自行配置
-var myconfig = config{
-	user:   "root",
-	pass:   "990813",
-	adrr:   "127.0.0.1",
-	port:   "3306",
-	dbname: "test",
+// 鹅圈子
+var cConfig = config{
+	user:   "cbd95300-772c-410a-a3b6-c0f5b8fc15a1",
+	pass:   "MFwJA5XT4Pot6lgu",
+	adrr:   "fortress.tech.xiaoe-tools.com",
+	port:   "33060",
+	dbname: "db_ex_business",
+}
+
+// o端库 t_app_base_info
+var oConfig = config{
+	user:   "fcb9f6d0-6b2f-4d96-9e86-1b4e99e6a0eb",
+	pass:   "DAsSvtSU84Atc9Fo",
+	adrr:   "fortress.tech.xiaoe-tools.com",
+	port:   "33060",
+	dbname: "db_ex_after_sales",
+}
+
+// 助学库 t_community_feeds_record
+var zConfig = config{
+	user:   "6256d262-f1c4-4ebc-b03b-0b2fa92b23b9",
+	pass:   "o6yD7qz87ZNLO9YL",
+	adrr:   "fortress.tech.xiaoe-tools.com",
+	port:   "33060",
+	dbname: "db_ex_ecommunity",
 }
 
 type EGorm struct {
@@ -47,8 +65,8 @@ type Conf struct {
 
 // GDB 获取Gorm DB连接
 // @return *gorm.DB
-func (ctl *EGorm) GDB() *gorm.DB {
-	return GetGorm(ctl.MysqlConfName)
+func (ctl *EGorm) GDB(name string) *gorm.DB {
+	return GetGorm(name)
 }
 
 // GetGorm 获取gorm连接
@@ -65,13 +83,29 @@ func GetGorm(name string) *gorm.DB {
 		return db
 	}
 	gormPoolLock.RUnlock()
-
-	db, err := NewGormConnect(myconfig)
-	if err != nil {
-		panic("连接数据库失败")
-		return &gorm.DB{}
+	var db *gorm.DB
+	var err error
+	if name == "c" {
+		db, err = NewGormConnect(cConfig)
+		if err != nil {
+			panic("连接数据库失败")
+			return &gorm.DB{}
+		}
 	}
-
+	if name == "o" {
+		db, err = NewGormConnect(oConfig)
+		if err != nil {
+			panic("连接数据库失败")
+			return &gorm.DB{}
+		}
+	}
+	if name == "z" {
+		db, err = NewGormConnect(zConfig)
+		if err != nil {
+			panic("连接数据库失败")
+			return &gorm.DB{}
+		}
+	}
 	gormPoolLock.Lock()
 	gormPool[name] = db
 	gormPoolLock.Unlock()
