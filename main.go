@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
+	"strings"
 )
 
 var c middleware.EGorm
@@ -35,8 +36,9 @@ func main() {
 	}()
 
 	community := c.GDB("c").Table("t_community")
+	communityFeeds := c.GDB("c").Table("t_community_feeds")
 	baseInfo := o.GDB("o").Table("t_app_base_info")
-	//feedsRecord := z.GDB("z").Table("t_community_feeds_record") //圈子浏览记录
+	feedsRecord := z.GDB("z").Table("t_community_feeds_record") //圈子浏览记录
 	var totalData []Data
 
 	// Fetch communities
@@ -102,5 +104,92 @@ func main() {
 			}
 		}
 	}
+
+	// 写入每条圈子的NoticeNum, NoticeZan, NoticeComment，并收集所有置顶动态的feeds_id
+	allTopFeedsIds := make([]string, 0)
+	for i := 0; i < len(totalData); i += batchSize {
+		end := i + batchSize
+		if end > len(totalData) {
+			end = len(totalData)
+		}
+		batch := totalData[i:end]
+
+		// Extract community IDs from the batch
+		communityIds := make([]string, len(batch))
+		for j, data := range batch {
+			communityIds[j] = data.CommunityId
+		}
+
+		var noticeData []struct {
+			CommunityId   string `gorm:"column:community_id"`
+			NoticeNum     int    `gorm:"column:notice_num"`
+			NoticeZan     int    `gorm:"column:notice_zan"`
+			NoticeComment int    `gorm:"column:notice_comment"`
+			FeedsIds      string `gorm:"column:feeds_ids"` // Changed FeedsIds to string
+		}
+
+		err := communityFeeds.
+			Select("community_id, GROUP_CONCAT(id) as feeds_ids, COUNT(id) as notice_num, SUM(zan_num) as notice_zan, SUM(comment_count) as notice_comment").
+			Where("community_id IN (?) AND is_notice = 1 AND feeds_state = 0", communityIds).
+			Group("community_id").
+			Find(&noticeData).Error
+
+		if err != nil {
+			fmt.Println("Error fetching batch notice data from t_community_feeds:", err)
+			continue
+		}
+
+		// Create a map for faster look-up
+		noticeMap := make(map[string]struct {
+			NoticeNum     int
+			NoticeZan     int
+			NoticeComment int
+			FeedsIds      []string
+		})
+		for _, notice := range noticeData {
+			ids := strings.Split(notice.FeedsIds, ",") // Split comma-separated string
+			noticeMap[notice.CommunityId] = struct {
+				NoticeNum     int
+				NoticeZan     int
+				NoticeComment int
+				FeedsIds      []string
+			}{NoticeNum: notice.NoticeNum, NoticeZan: notice.NoticeZan, NoticeComment: notice.NoticeComment, FeedsIds: ids}
+			allTopFeedsIds = append(allTopFeedsIds, ids...)
+		}
+
+		// Update the Data struct slice with fetched values
+		for j, data := range batch {
+			if notice, exists := noticeMap[data.CommunityId]; exists {
+				totalData[i+j].NoticeNum = notice.NoticeNum
+				totalData[i+j].NoticeZan = notice.NoticeZan
+				totalData[i+j].NoticeComment = notice.NoticeComment
+			}
+		}
+	}
+
+	fmt.Println(totalData[0])
+	// 写入每个圈子的置顶动态浏览总数至NoticeRecordsNum字段
+	var recordData []struct {
+		CommunityId string `gorm:"column:community_id"`
+		RecordsNum  int    `gorm:"column:records_num"`
+	}
+	err := feedsRecord.
+		Select("community_id, COUNT(id) as records_num").
+		Where("feeds_id IN (?)", allTopFeedsIds).
+		Group("community_id").
+		Find(&recordData).Error
+	if err != nil {
+		fmt.Println("Error fetching records data from t_community_feeds_record:", err)
+	}
+	recordsMap := make(map[string]int)
+	for _, record := range recordData {
+		recordsMap[record.CommunityId] = record.RecordsNum
+	}
+	for _, data := range totalData {
+		if recordsNum, exists := recordsMap[data.CommunityId]; exists {
+			data.NoticeRecordsNum = recordsNum
+		}
+	}
+
 	fmt.Println(totalData[0])
 }
