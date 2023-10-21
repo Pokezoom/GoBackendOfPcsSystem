@@ -3,8 +3,10 @@ package main
 import (
 	"GoDockerBuild/middleware"
 	"fmt"
+	"github.com/xuri/excelize/v2"
 	"net/http"
 	_ "net/http/pprof"
+	"reflect"
 	"strings"
 )
 
@@ -12,21 +14,22 @@ var c middleware.EGorm
 var o middleware.EGorm
 var z middleware.EGorm
 
+// Data 最终要筛选出来的表的列名
 type Data struct {
-	AppId            string
-	CommunityId      string
-	Title            string //圈子名称
-	AppName          string //店铺名称
-	NewIndustryName  string //圈子行业类别
-	UserCount        int    //圈子有效用户数
-	FeedsCount       int    //圈子动态总数
-	NoticeNum        int    //圈子置顶动态数
-	NoticeRecordsNum int    //置顶动态浏览数
-	NoticeZan        int    //置顶点赞数
-	NoticeComment    int    //置顶评论数
+	AppId            string `xlsx:"店铺id"`
+	CommunityId      string `xlsx:"圈子id"`
+	Title            string `xlsx:"圈子名称"`
+	AppName          string `xlsx:"店铺名称"`
+	NewIndustryName  string `xlsx:"圈子行业类别"`
+	UserCount        int    `xlsx:"圈子有效用户数"`
+	FeedsCount       int    `xlsx:"圈子动态总数"`
+	NoticeNum        int    `xlsx:"圈子置顶动态数"`
+	NoticeRecordsNum int    `xlsx:"置顶动态浏览数"`
+	NoticeZan        int    `xlsx:"置顶点赞数"`
+	NoticeComment    int    `xlsx:"置顶评论数"`
 }
 
-const batchSize = 500
+const batchSize = 500 // 单次最高查询量，若要提高效率
 
 func main() {
 	//go tool pprof http://localhost:8080/debug/pprof/heap 使用命令行工具抓取和查看堆剖析数据
@@ -192,4 +195,55 @@ func main() {
 	}
 
 	fmt.Println(totalData[0])
+	//开始构建xlsx文件
+	excle(totalData)
+}
+
+func getExcelHeadersFromStruct(data interface{}) []string {
+	var headers []string
+	t := reflect.TypeOf(data)
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		header := field.Tag.Get("xlsx")
+		if header != "" {
+			headers = append(headers, header)
+		}
+	}
+	return headers
+}
+
+func excle(totalData []Data) {
+
+	f := excelize.NewFile()
+
+	// 写列名
+	headers := getExcelHeadersFromStruct(Data{})
+	for i, header := range headers {
+		col := toAlphaString(i) + "1"
+		f.SetCellValue("Sheet1", col, header)
+	}
+
+	// Add data to the Excel file
+	for i, data := range totalData {
+		row := i + 2 // Start data at row 2, since row 1 has the column names
+		f.SetCellValue("Sheet1", fmt.Sprintf("A%d", row), data.AppId)
+		f.SetCellValue("Sheet1", fmt.Sprintf("B%d", row), data.CommunityId)
+		f.SetCellValue("Sheet1", fmt.Sprintf("C%d", row), data.Title)
+		f.SetCellValue("Sheet1", fmt.Sprintf("D%d", row), data.AppName)
+		f.SetCellValue("Sheet1", fmt.Sprintf("E%d", row), data.NewIndustryName)
+		f.SetCellValue("Sheet1", fmt.Sprintf("F%d", row), data.UserCount)
+		f.SetCellValue("Sheet1", fmt.Sprintf("G%d", row), data.FeedsCount)
+		f.SetCellValue("Sheet1", fmt.Sprintf("H%d", row), data.NoticeNum)
+		f.SetCellValue("Sheet1", fmt.Sprintf("I%d", row), data.NoticeRecordsNum)
+		f.SetCellValue("Sheet1", fmt.Sprintf("J%d", row), data.NoticeZan)
+		f.SetCellValue("Sheet1", fmt.Sprintf("K%d", row), data.NoticeComment)
+	}
+
+	// Save the Excel file
+	if err := f.SaveAs("totalData.xlsx"); err != nil {
+		fmt.Println(err)
+	}
+}
+func toAlphaString(i int) string {
+	return string(rune('A' + i))
 }
