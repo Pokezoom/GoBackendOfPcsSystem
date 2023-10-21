@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	config2 "GoDockerBuild/config"
 	"errors"
 	"fmt"
 	"github.com/jinzhu/gorm"
@@ -16,34 +17,25 @@ var (
 	gormPoolLock sync.RWMutex                   // 连接单例池锁
 )
 
-// 需要自行配置
-var myconfig = config{
-	user:   "root",
-	pass:   "990813",
-	adrr:   "127.0.0.1",
-	port:   "3306",
-	dbname: "test",
-}
-
 type EGorm struct {
 	MysqlConfName string
 }
 
 // MultipleConf 读写分离配置
-type MultipleConf struct {
-	Sources  []Conf // 写库
-	Replicas []Conf // 读库
-}
-
-// Conf 单个数据库配置
-type Conf struct {
-	Host     string
-	Port     int
-	Database string
-	User     string
-	Password string
-	Params   string
-}
+//type MultipleConf struct {
+//	Sources  []Conf // 写库
+//	Replicas []Conf // 读库
+//}
+//
+//// Conf 单个数据库配置
+//type Conf struct {
+//	Host     string
+//	Port     int
+//	Database string
+//	User     string
+//	Password string
+//	Params   string
+//}
 
 // GDB 获取Gorm DB连接
 // @return *gorm.DB
@@ -65,7 +57,7 @@ func GetGorm(name string) *gorm.DB {
 		return db
 	}
 	gormPoolLock.RUnlock()
-
+	myconfig := config2.GetDevMysqlConfig()
 	db, err := NewGormConnect(myconfig)
 	if err != nil {
 		panic("连接数据库失败")
@@ -79,24 +71,24 @@ func GetGorm(name string) *gorm.DB {
 	return db
 }
 
-type config struct {
-	user   string
-	pass   string
-	adrr   string
-	port   string
-	dbname string
+type Config struct {
+	User   string
+	Pass   string
+	Addr   string
+	Port   string
+	Dbname string
 }
 
 // NewGormConnect 获取新客户端
 // @param conf 配置信息
 // @return *gorm.DB gorm连接
 // @return error
-func NewGormConnect(conf config) (*gorm.DB, error) {
+func NewGormConnect(conf Config) (*gorm.DB, error) {
 	if !isInit {
 		panic(ErrNoInit)
 	}
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%v)/%s?charset=utf8&parseTime=True&loc=Local", conf.user, conf.pass, conf.adrr, conf.port, conf.dbname)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%v)/%s?charset=utf8&parseTime=True&loc=Local", conf.User, conf.Pass, conf.Addr, conf.Port, conf.Dbname)
 	db, err := gorm.Open("mysql", dsn)
 	if err != nil {
 		panic(err)

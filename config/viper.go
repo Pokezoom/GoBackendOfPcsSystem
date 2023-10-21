@@ -1,6 +1,7 @@
 package config
 
 import (
+	"GoDockerBuild/middleware"
 	"fmt"
 	"github.com/spf13/viper"
 )
@@ -27,6 +28,38 @@ func init() {
 	if err := config.ReadInConfig(); err != nil {
 		fmt.Printf("Error reading config file, %s\n", err)
 	}
+}
+
+// 读取线上环境的mysql配置
+func GetDevMysqlConfig() middleware.Config {
+	host := config.GetString("mysql.host")
+	port := config.GetString("mysql.port")
+	username := config.GetString("mysql.username")
+	password := config.GetString("mysql.password")
+	database := config.GetString("mysql.database")
+	myConfig := middleware.Config{
+		User:   username,
+		Pass:   password,
+		Addr:   host,
+		Port:   port,
+		Dbname: database,
+	}
+	return myConfig
+}
+func GetMysqlConfig() middleware.Config {
+	host := devConfig.GetString("mysql.host")
+	port := devConfig.GetString("mysql.port")
+	username := devConfig.GetString("mysql.username")
+	password := devConfig.GetString("mysql.password")
+	database := devConfig.GetString("mysql.database")
+	myConfig := middleware.Config{
+		User:   username,
+		Pass:   password,
+		Addr:   host,
+		Port:   port,
+		Dbname: database,
+	}
+	return myConfig
 }
 
 func Test() {
