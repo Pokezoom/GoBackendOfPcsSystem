@@ -14,7 +14,7 @@ func init() {
 	devConfig = viper.New()
 	devConfig.SetConfigName("dev_config")
 	devConfig.SetConfigType("json")
-	devConfig.AddConfigPath(".")
+	devConfig.AddConfigPath("./config")
 	if err := devConfig.ReadInConfig(); err != nil {
 		fmt.Printf("Error reading dev_config file, %s\n", err)
 	}
@@ -23,7 +23,7 @@ func init() {
 	config = viper.New()
 	config.SetConfigName("config")
 	config.SetConfigType("json")
-	config.AddConfigPath(".")
+	config.AddConfigPath("./config")
 	if err := config.ReadInConfig(); err != nil {
 		fmt.Printf("Error reading config file, %s\n", err)
 	}

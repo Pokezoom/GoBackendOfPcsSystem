@@ -1,6 +1,7 @@
 package main
 
 import (
+	"GoDockerBuild/config"
 	"GoDockerBuild/router"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -9,7 +10,7 @@ import (
 func main() {
 	// 1.创建路由
 	r := gin.Default()
-	//config.Test()
+	config.Test()
 	// 2.绑定路由规则，执行的函数
 	router.Router(r)
 	logrus.SetLevel(logrus.TraceLevel)
