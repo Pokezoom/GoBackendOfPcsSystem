@@ -40,10 +40,9 @@ func (p ProjectController) Create(context *gin.Context) {
 func (p ProjectController) Delete(context *gin.Context) {
 	req := mode.ProDel{}
 	context.ShouldBindJSON(&req)
-	fmt.Print("start delete!")
 	err := service.Project.DeleteProject(req.Id)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, middleware.Response{500, "error", nil})
+		context.JSON(http.StatusInternalServerError, middleware.Response{500, err.Error(), nil})
 		return
 	}
 	context.JSON(http.StatusOK, middleware.Response{200, "", nil})

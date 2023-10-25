@@ -5,5 +5,8 @@
     "username": "root",
     "password": "password",
     "database": "test_db"
+  },
+  "video_files": {
+    "path": "videos"
   }
 }
