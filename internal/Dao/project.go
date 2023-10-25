@@ -14,7 +14,7 @@ func NewProjectData() ProjectData {
 }
 
 func (d ProjectData) CreateProject(name string) error {
-	s := tables.Name_inof{Name: name, Id: 12}
+	s := tables.Name_inof{Name: name}
 	err := d.g.GDB().Table("name_info").Create(&s).Error
 	return err
 }
@@ -25,8 +25,8 @@ func (d ProjectData) DeleteProject(id int) error {
 	return err
 }
 
-func (d ProjectData) GetProject() (tables.Name_inof, error) {
+func (d ProjectData) GetProjectById(id int) (tables.Name_inof, error) {
 	s := tables.Name_inof{}
-	err := d.g.GDB().Table("name_info").Where("id = ?", 12).First(&s).Error
+	err := d.g.GDB().Table("name_info").Where("id = ?", id).First(&s).Error
 	return s, err
 }

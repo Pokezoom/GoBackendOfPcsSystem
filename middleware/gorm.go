@@ -18,7 +18,7 @@ var (
 )
 
 type EGorm struct {
-	MysqlConfName string
+	MysqlConfName string //保证一张表只会有一个连接实例
 }
 
 // MultipleConf 读写分离配置
