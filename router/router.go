@@ -23,7 +23,10 @@ func initProject(r *gin.Engine) {
 		<———————————————视频相关的路由————————————————>
 	*/
 	videoRouter := r.Group("/video")
-	videoRouter.POST("upload", controller.Video.UploadVideo)
+	videoRouter.POST("/upload", controller.Video.UploadVideo)
+	/*
+		<———————————————user相关的路由————————————————>
+	*/
 
 	logrus.Debug("路由注册完成")
 }
