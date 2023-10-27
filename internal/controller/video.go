@@ -51,3 +51,7 @@ func (V VideoController) UploadVideo(context *gin.Context) {
 		Data: mode.UploadRes{videoID},
 	})
 }
+
+func (V VideoController) DelVideo(context *gin.Context) {
+
+}

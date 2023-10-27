@@ -26,6 +26,7 @@ func initProject(r *gin.Engine) {
 	*/
 	videoRouter := r.Group("/video")
 	videoRouter.POST("/upload", controller.Video.UploadVideo)
+	//videoRouter.DELETE("", controller.Video)
 	/*
 		<———————————————user相关的路由————————————————>
 	*/
