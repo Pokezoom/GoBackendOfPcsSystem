@@ -18,7 +18,7 @@ var (
 )
 
 type EGorm struct {
-	MysqlConfName string
+	MysqlConfName string //保证一张表只会有一个连接实例
 }
 
 // MultipleConf 读写分离配置
@@ -57,7 +57,7 @@ func GetGorm(name string) *gorm.DB {
 		return db
 	}
 	gormPoolLock.RUnlock()
-	myconfig := config2.GetDevMysqlConfig()
+	myconfig := config2.GetMysqlConfig()
 	db, err := NewGormConnect(myconfig)
 	if err != nil {
 		panic("连接数据库失败")

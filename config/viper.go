@@ -8,12 +8,12 @@ import (
 
 // 包级别的 Viper 实例变量
 var devConfig *viper.Viper //开发测试用的配置文件
-var config *viper.Viper    //正式版用的配置文件
+//var config *viper.Viper    //正式版用的配置文件
 
 func init() {
 	// 初始化第一个 Viper 实例
 	devConfig = viper.New()
-	devConfig.SetConfigName("dev_config")
+	devConfig.SetConfigName("dev_config") //如果要切换成正式版，改这里就行
 	devConfig.SetConfigType("json")
 	devConfig.AddConfigPath("./config")
 	if err := devConfig.ReadInConfig(); err != nil {
@@ -21,31 +21,16 @@ func init() {
 	}
 
 	// 初始化第二个 Viper 实例
-	config = viper.New()
-	config.SetConfigName("config")
-	config.SetConfigType("json")
-	config.AddConfigPath("./config")
-	if err := config.ReadInConfig(); err != nil {
-		fmt.Printf("Error reading config file, %s\n", err)
-	}
+	//config = viper.New()
+	//config.SetConfigName("config")
+	//config.SetConfigType("json")
+	//config.AddConfigPath("./config")
+	//if err := config.ReadInConfig(); err != nil {
+	//	fmt.Printf("Error reading config file, %s\n", err)
+	//}
 }
 
-// 读取线上环境的mysql配置
-func GetDevMysqlConfig() middleware.Config {
-	host := config.GetString("mysql.host")
-	port := config.GetString("mysql.port")
-	username := config.GetString("mysql.username")
-	password := config.GetString("mysql.password")
-	database := config.GetString("mysql.database")
-	myConfig := middleware.Config{
-		User:   username,
-		Pass:   password,
-		Addr:   host,
-		Port:   port,
-		Dbname: database,
-	}
-	return myConfig
-}
+// 读区mysql配置
 func GetMysqlConfig() middleware.Config {
 	host := devConfig.GetString("mysql.host")
 	port := devConfig.GetString("mysql.port")
@@ -60,6 +45,10 @@ func GetMysqlConfig() middleware.Config {
 		Dbname: database,
 	}
 	return myConfig
+}
+
+func GetVideoPath() string {
+	return devConfig.GetString("video_files.path")
 }
 
 func Test() {
