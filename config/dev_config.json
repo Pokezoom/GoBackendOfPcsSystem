@@ -3,8 +3,8 @@
     "host": "localhost",
     "port": 3306,
     "username": "root",
-    "password": "password",
-    "database": "test_db"
+    "password": "keke990813",
+    "database": "dev_pcs"
   },
   "video_files": {
     "path": "videos"

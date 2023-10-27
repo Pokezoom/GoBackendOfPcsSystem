@@ -71,19 +71,11 @@ func GetGorm(name string) *gorm.DB {
 	return db
 }
 
-type Config struct {
-	User   string
-	Pass   string
-	Addr   string
-	Port   string
-	Dbname string
-}
-
 // NewGormConnect 获取新客户端
 // @param conf 配置信息
 // @return *gorm.DB gorm连接
 // @return error
-func NewGormConnect(conf Config) (*gorm.DB, error) {
+func NewGormConnect(conf config2.Config) (*gorm.DB, error) {
 	if !isInit {
 		panic(ErrNoInit)
 	}

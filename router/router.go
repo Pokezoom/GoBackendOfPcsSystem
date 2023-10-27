@@ -2,6 +2,7 @@ package router
 
 import (
 	"GoDockerBuild/internal/controller"
+	"GoDockerBuild/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -13,6 +14,7 @@ func Router(r *gin.Engine) {
 
 }
 func initProject(r *gin.Engine) {
+	r.Use(middleware.RecoveryMiddleware())
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "hello World!")
 	})
@@ -24,6 +26,7 @@ func initProject(r *gin.Engine) {
 	*/
 	videoRouter := r.Group("/video")
 	videoRouter.POST("/upload", controller.Video.UploadVideo)
+	//videoRouter.DELETE("", controller.Video)
 	/*
 		<———————————————user相关的路由————————————————>
 	*/
