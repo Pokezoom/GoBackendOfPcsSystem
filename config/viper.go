@@ -1,7 +1,6 @@
 package config
 
 import (
-	"GoDockerBuild/middleware"
 	"fmt"
 	"github.com/spf13/viper"
 )
@@ -9,6 +8,14 @@ import (
 // 包级别的 Viper 实例变量
 var devConfig *viper.Viper //开发测试用的配置文件
 //var config *viper.Viper    //正式版用的配置文件
+
+type Config struct {
+	User   string
+	Pass   string
+	Addr   string
+	Port   string
+	Dbname string
+}
 
 func init() {
 	// 初始化第一个 Viper 实例
@@ -31,13 +38,13 @@ func init() {
 }
 
 // 读区mysql配置
-func GetMysqlConfig() middleware.Config {
+func GetMysqlConfig() Config {
 	host := devConfig.GetString("mysql.host")
 	port := devConfig.GetString("mysql.port")
 	username := devConfig.GetString("mysql.username")
 	password := devConfig.GetString("mysql.password")
 	database := devConfig.GetString("mysql.database")
-	myConfig := middleware.Config{
+	myConfig := Config{
 		User:   username,
 		Pass:   password,
 		Addr:   host,

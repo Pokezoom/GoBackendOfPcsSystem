@@ -29,10 +29,13 @@ func (V VideoController) UploadVideo(context *gin.Context) {
 	//TODO 权限鉴定，参数校验等
 	videoID, err := service.Video.UploadAndSaveVideo(context, req)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		context.JSON(http.StatusBadRequest, middleware.Response{
+			Code: http.StatusBadRequest,
+			Msg:  err.Error(),
+			Data: nil,
+		})
 		return
 	}
-
 	context.JSON(http.StatusOK, middleware.Response{
 		Code: 200,
 		Msg:  "ok",

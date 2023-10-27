@@ -67,6 +67,5 @@ func (s VideoService) UploadAndSaveVideo(c *gin.Context, req mode.UploadReq) (in
 	if err != nil {
 		return 0, err
 	}
-
 	return video.ID, nil
 }
