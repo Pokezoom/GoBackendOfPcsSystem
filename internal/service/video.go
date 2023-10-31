@@ -8,6 +8,7 @@ import (
 	"GoDockerBuild/middleware"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
 )
@@ -26,8 +27,17 @@ type VideoService struct {
 }
 
 // 通过ID删除视频（软删除）
-func (s VideoService) DeleteVideoById(id int) error {
-	return s.data.DeleteVideoById(id)
+func (s VideoService) DeleteVideoById(videoId int, userId int) error {
+	video, err := s.data.GetVideoById(videoId)
+	if err != nil {
+		return err
+	}
+	if video.UserID != userId {
+		logrus.Infof("%d用户删除视频%d失败，原因没有权限", userId, videoId)
+		return errors.New("该用户没有删除视频的权限")
+	}
+	logrus.Infof("%d用户成功删除了视频%d", userId, videoId)
+	return s.data.DeleteVideoById(videoId)
 }
 
 // UploadAndSaveVideo 上传并保存视频
@@ -68,4 +78,16 @@ func (s VideoService) UploadAndSaveVideo(c *gin.Context, req mode.UploadReq) (in
 		return 0, err
 	}
 	return video.ID, nil
+}
+
+func (s VideoService) GetVideoList(req mode.VideoListReq) ([]tables.Video, error) {
+	return s.data.GetVideoList(req)
+}
+
+func (s VideoService) GetVideoPathByID(videoID int) (string, error) {
+	video, err := s.data.GetVideoById(videoID)
+	if err != nil {
+		return "", err
+	}
+	return video.URL, nil
 }
