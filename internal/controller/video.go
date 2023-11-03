@@ -53,5 +53,81 @@ func (V VideoController) UploadVideo(context *gin.Context) {
 }
 
 func (V VideoController) DelVideo(context *gin.Context) {
+	delReq := mode.DelVideoRes{}
+	err := context.ShouldBindJSON(&delReq)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, middleware.Response{
+			Code: http.StatusBadRequest,
+			Msg:  err.Error(),
+			Data: nil,
+		})
+		return
+	}
+	videoId := delReq.VideoId
+	userId := delReq.UserID
+	err = service.Video.DeleteVideoById(videoId, userId)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, middleware.Response{
+			Code: http.StatusBadRequest,
+			Msg:  err.Error(),
+			Data: nil,
+		})
+		return
+	}
+	context.JSON(http.StatusOK, middleware.Response{
+		Code: 200,
+		Msg:  "ok",
+		Data: mode.UploadRes{videoId},
+	})
+}
 
+func (V VideoController) VideoList(context *gin.Context) {
+	var req mode.VideoListReq
+	if err := context.ShouldBindJSON(&req); err != nil {
+		context.JSON(http.StatusBadRequest, middleware.Response{
+			Code: http.StatusBadRequest,
+			Msg:  err.Error(),
+			Data: nil,
+		})
+		return
+	}
+	videos, err := service.Video.GetVideoList(req)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, middleware.Response{
+			Code: http.StatusBadRequest,
+			Msg:  err.Error(),
+			Data: nil,
+		})
+		return
+	}
+	context.JSON(http.StatusOK, middleware.Response{
+		Code: 200,
+		Msg:  "ok",
+		Data: videos,
+	})
+}
+
+func (V VideoController) PlayVideo(context *gin.Context) {
+	videoIDStr := context.Param("videoID")
+	videoID, err := strconv.Atoi(videoIDStr)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, middleware.Response{
+			Code: http.StatusBadRequest,
+			Msg:  "无效的视频ID",
+			Data: nil,
+		})
+		return
+	}
+
+	videoPath, err := service.Video.GetVideoPathByID(videoID)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, middleware.Response{
+			Code: http.StatusBadRequest,
+			Msg:  err.Error(),
+			Data: nil,
+		})
+		return
+	}
+	//可以通过访问 /play/:videoID 这个URL来播放视频
+	context.File(videoPath)
 }

@@ -2,6 +2,7 @@ package Dao
 
 import (
 	"GoDockerBuild/internal/Dao/tables"
+	"GoDockerBuild/internal/mode"
 	"GoDockerBuild/middleware"
 	"time"
 )
@@ -39,4 +40,28 @@ func (d VideoData) UpdateVideo(video tables.Video) error {
 	video.UpdatedAt = time.Now()
 	err := d.g.GDB().Table("video").Where("id = ?", video.ID).Updates(&video).Error
 	return err
+}
+
+// 获取视频页
+func (d VideoData) GetVideoList(req mode.VideoListReq) ([]tables.Video, error) {
+	var videos []tables.Video
+	query := d.g.GDB().Table("video").Where("deleted = ?", 0)
+
+	if req.Name != "" {
+		query = query.Where("name LIKE ?", "%"+req.Name+"%")
+	}
+	if req.Class != "" {
+		query = query.Where("class = ?", req.Class)
+	}
+	if req.Subject != "" {
+		query = query.Where("subject = ?", req.Subject)
+	}
+	if req.StartDate != "" && req.EndDate != "" {
+		query = query.Where("created_at BETWEEN ? AND ?", req.StartDate, req.EndDate)
+	}
+
+	if err := query.Limit(req.PageSize).Offset((req.PageNum - 1) * req.PageSize).Find(&videos).Error; err != nil {
+		return nil, err
+	}
+	return videos, nil
 }
