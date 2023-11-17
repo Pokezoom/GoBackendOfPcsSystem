@@ -131,3 +131,108 @@ func (V VideoController) PlayVideo(context *gin.Context) {
 	//可以通过访问 /play/:videoID 这个URL来播放视频
 	context.File(videoPath)
 }
+
+// AnalysisVideo 分析视频
+func (V VideoController) AnalysisVideo(context *gin.Context) {
+	var req mode.VideoAnalysisReq
+	if err := context.ShouldBindJSON(&req); err != nil {
+		context.JSON(http.StatusBadRequest, middleware.Response{
+			Code: http.StatusBadRequest,
+			Msg:  err.Error(),
+			Data: nil,
+		})
+		return
+	}
+	res, err := service.VideoAnalysis.AnalysisVideo(context, req)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, middleware.Response{
+			Code: http.StatusBadRequest,
+			Msg:  err.Error(),
+			Data: nil,
+		})
+		return
+	}
+	context.JSON(http.StatusOK, middleware.Response{
+		Code: 200,
+		Msg:  "ok",
+		Data: res,
+	})
+}
+
+// GenerateReport 生成视频分析报告
+func (v VideoController) GenerateReport(context *gin.Context) {
+	var req mode.GenerateReport
+	if err := context.ShouldBindJSON(&req); err != nil {
+		context.JSON(http.StatusBadRequest, middleware.Response{
+			Code: http.StatusBadRequest,
+			Msg:  err.Error(),
+			Data: nil,
+		})
+		return
+	}
+
+	err := service.VideoAnalysis.GeneratePDFReport(context, req)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, middleware.Response{
+			Code: http.StatusInternalServerError,
+			Msg:  err.Error(),
+			Data: nil,
+		})
+		return
+	}
+
+	context.JSON(http.StatusOK, middleware.Response{
+		Code: 200,
+		Msg:  "报告生成成功",
+		Data: nil,
+	})
+}
+
+// DownloadReport 用于下载视频分析报告
+func (v VideoController) DownloadReport(context *gin.Context) {
+	reportName := context.Param("reportName") // 假设报告名称通过 URL 参数传递
+
+	filePath, err := service.VideoAnalysis.GetReportFilePath(reportName)
+	if err != nil {
+		context.JSON(http.StatusNotFound, middleware.Response{
+			Code: http.StatusNotFound,
+			Msg:  err.Error(),
+			Data: nil,
+		})
+		return
+	}
+
+	context.Header("Content-Disposition", "attachment; filename="+reportName)
+	context.Header("Content-Type", "application/pdf")
+
+	// 提供文件下载
+	context.File(filePath)
+}
+
+func (V VideoController) VideoAnalysisList(context *gin.Context) {
+	var req mode.VideoAnalysisListReq
+	if err := context.ShouldBindJSON(&req); err != nil {
+		context.JSON(http.StatusBadRequest, middleware.Response{
+			Code: http.StatusBadRequest,
+			Msg:  err.Error(),
+			Data: nil,
+		})
+		return
+	}
+
+	analysisList, err := service.VideoAnalysis.GetVideoAnalysisList(req)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, middleware.Response{
+			Code: http.StatusInternalServerError,
+			Msg:  err.Error(),
+			Data: nil,
+		})
+		return
+	}
+
+	context.JSON(http.StatusOK, middleware.Response{
+		Code: 200,
+		Msg:  "ok",
+		Data: analysisList,
+	})
+}

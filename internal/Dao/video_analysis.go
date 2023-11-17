@@ -2,6 +2,7 @@ package Dao
 
 import (
 	"GoDockerBuild/internal/Dao/tables"
+	"GoDockerBuild/internal/mode"
 	"GoDockerBuild/middleware"
 	"time"
 )
@@ -39,4 +40,17 @@ func (d VideoAnalysisData) UpdateVideoAnalysis(videoAnalysis tables.VideoAnalysi
 	videoAnalysis.UpdatedAt = time.Now()
 	err := d.g.GDB().Table("video_analysis").Where("id = ?", videoAnalysis.ID).Updates(&videoAnalysis).Error
 	return err
+}
+
+// GetVideoAnalysisList 获取分页的视频分析数据列表
+func (d VideoAnalysisData) GetVideoAnalysisList(req mode.VideoAnalysisListReq) ([]tables.VideoAnalysis, error) {
+	var analyses []tables.VideoAnalysis
+	query := d.g.GDB().Table("video_analysis").Where("deleted = ?", 0)
+
+	// 分页查询
+	if err := query.Limit(req.PageSize).Offset((req.PageNum - 1) * req.PageSize).Find(&analyses).Error; err != nil {
+		return nil, err
+	}
+
+	return analyses, nil
 }

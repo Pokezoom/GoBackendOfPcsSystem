@@ -7,6 +7,10 @@
     "database": "dev_pcs"
   },
   "video_files": {
-    "path": "videos"
+    "path": "videos",
+    "report_path": "reports"
+  },
+  "AI": {
+    "url": "localhost"
   }
 }
