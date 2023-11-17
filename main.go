@@ -1,3 +1,13 @@
+/*
+ * @Author: sucy suchunyu1998@gmail.com
+ * @Date: 2023-11-17 20:34:27
+ * @LastEditTime: 2023-11-17 20:34:28
+ * @LastEditors: Suchunyu
+ * @Description: 
+ * @FilePath: /GoBackendOfPcsSystem/main.go
+ * Copyright (c) 2023 by Suchunyu, All Rights Reserved. 
+ */
+
 package main
 
 import (
@@ -22,3 +32,5 @@ func main() {
 		return
 	}
 }
+
+
