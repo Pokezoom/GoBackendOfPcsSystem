@@ -27,14 +27,6 @@ func init() {
 		fmt.Printf("Error reading dev_config file, %s\n", err)
 	}
 
-	// 初始化第二个 Viper 实例
-	//config = viper.New()
-	//config.SetConfigName("config")
-	//config.SetConfigType("json")
-	//config.AddConfigPath("./config")
-	//if err := config.ReadInConfig(); err != nil {
-	//	fmt.Printf("Error reading config file, %s\n", err)
-	//}
 }
 
 // 读区mysql配置
@@ -79,4 +71,10 @@ func Test() {
 	fmt.Println("Username:", username)
 	fmt.Println("Password:", password)
 	fmt.Println("Database:", database)
+}
+func GetAIUrl() string {
+	return devConfig.GetString("AI.url")
+}
+func GetReport() string {
+	return devConfig.GetString("video_files.report_path")
 }

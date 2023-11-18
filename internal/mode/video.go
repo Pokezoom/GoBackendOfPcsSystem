@@ -24,3 +24,20 @@ type VideoListReq struct {
 	StartDate string `json:"startDate,omitempty"`
 	EndDate   string `json:"endDate,omitempty"`
 }
+type VideoAnalysisReq struct {
+	UserID          int `json:"userId"` //当前用户
+	VideoId         int `json:"videoId"`
+	FacialData      int `json:"facialData"` // 0-不需要，1-需要 以下相同
+	FatigueData     int `json:"fatigueData"`
+	LimbData        int `json:"limbData"`
+	StudyStatusData int `json:"studyStatusData"`
+}
+type GenerateReport struct {
+	UserID          int `json:"userId"` //当前用户
+	VideoAnalysisId int `json:"videoAnalysisId"`
+}
+
+type VideoAnalysisListReq struct {
+	PageSize int `json:"pageSize"`
+	PageNum  int `json:"pageNum"`
+}
