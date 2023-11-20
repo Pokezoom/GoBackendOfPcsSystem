@@ -1,11 +1,21 @@
+/*
+ * @Author: sucy suchunyu1998@gmail.com
+ * @Date: 2023-11-19 16:02:29
+ * @LastEditTime: 2023-11-19 16:02:30
+ * @LastEditors: Suchunyu
+ * @Description:
+ * @FilePath: /GoBackendOfPcsSystem/router/router.go
+ * Copyright (c) 2023 by Suchunyu, All Rights Reserved.
+ */
 package router
 
 import (
 	"GoDockerBuild/internal/controller"
 	"GoDockerBuild/middleware"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
 // Router 注册路由

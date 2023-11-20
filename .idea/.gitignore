@@ -6,3 +6,6 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+
+# 忽略.vscode下的所有文件
+.vscode/settings.json

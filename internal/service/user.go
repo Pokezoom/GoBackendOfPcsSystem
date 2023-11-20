@@ -3,9 +3,9 @@
  * @Date: 2023-11-17 21:06:46
  * @LastEditTime: 2023-11-17 21:06:48
  * @LastEditors: Suchunyu
- * @Description: 
+ * @Description:
  * @FilePath: /GoBackendOfPcsSystem/internal/service/user.go
- * Copyright (c) 2023 by Suchunyu, All Rights Reserved. 
+ * Copyright (c) 2023 by Suchunyu, All Rights Reserved.
  */
 package service
 
@@ -20,6 +20,7 @@ func init() {
 	middleware.Register(
 		func() {
 			User = UserService{data: Dao.NewUserData()}
+
 		})
 }
 
