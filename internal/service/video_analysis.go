@@ -41,7 +41,7 @@ func (s VideoAnalysisService) DeleteVideoAnalysisById(ctx context.Context, id in
 func (s VideoAnalysisService) AnalysisVideo(ctx *gin.Context, req mode.VideoAnalysisReq) (tables.VideoAnalysis, error) {
 	var res tables.VideoAnalysis
 	video, err := s.videoData.GetVideoById(req.VideoId)
-	if err != nil || video.ID == 0 || video.URL != "" {
+	if err != nil || video.ID == 0 || video.URL == "" {
 		return res, err
 	}
 	// 创建一个errgroup
@@ -75,8 +75,8 @@ func (s VideoAnalysisService) AnalysisVideo(ctx *gin.Context, req mode.VideoAnal
 			return err
 		})
 	}
-	// 等待所有goroutine完成
-	if err := G.Wait(); err != nil {
+	// 等待所有goroutine完成,这里记得改    应该是err != nil ,现在为了调试所以这样写
+	if err := G.Wait(); err == nil {
 		return res, err
 	}
 	res.VideoID = video.ID
@@ -124,7 +124,6 @@ func (s VideoAnalysisService) LimbData(ctx context.Context) (datatypes.JSON, err
 	return Data, nil
 }
 
-// 生成视频分析的PDF报告
 func (s VideoAnalysisService) GeneratePDFReport(ctx *gin.Context, req mode.GenerateReport) error {
 	analysis, err := s.data.GetVideoAnalysisById(req.VideoAnalysisId)
 	if err != nil {
@@ -134,54 +133,63 @@ func (s VideoAnalysisService) GeneratePDFReport(ctx *gin.Context, req mode.Gener
 	pdf.AddPage()
 	pdf.SetFont("Arial", "", 12)
 
-	// 设置标题
+	// Set title
 	pdf.SetFont("Arial", "B", 16)
-	pdf.CellFormat(0, 10, "视频分析报告", "0", 1, "C", false, 0, "")
-	pdf.Ln(10) // 添加额外的空行
+	pdf.CellFormat(0, 10, "Video Analysis Report", "0", 1, "C", false, 0, "")
+	pdf.Ln(10) // Add an extra empty line
 
-	// 添加数据到PDF的辅助函数
+	// Helper function to add data to PDF
 	addDataToPDF := func(title string, data string) {
 		if data == "" {
-			data = "N/A" // 处理空值
+			data = "N/A" // Handle empty value
 		}
 		pdf.SetFont("Arial", "", 12)
 		pdf.CellFormat(0, 10, fmt.Sprintf("%s: %s", title, data), "0", 1, "", false, 0, "")
 	}
 
-	// 获取并添加视频信息
+	// Fetch and add video information
 	video, err := s.videoData.GetVideoById(analysis.VideoID)
 	if err != nil {
 		return err
 	}
 
-	addDataToPDF("视频名称", video.Name)
-	addDataToPDF("视频时长", fmt.Sprintf("%d 秒", video.Duration))
-	addDataToPDF("所属班级", video.Class)
-	addDataToPDF("学年", video.AcademicYear)
-	addDataToPDF("科目", video.Subject)
-	// 添加其他视频相关信息...
+	addDataToPDF("Video Name", video.Name)
+	addDataToPDF("Video Duration", fmt.Sprintf("%d seconds", video.Duration))
+	addDataToPDF("Class", video.Class)
+	addDataToPDF("Academic Year", video.AcademicYear)
+	addDataToPDF("Subject", video.Subject)
+	// Add other video related information...
 
-	pdf.Ln(5) // 在视频信息和分析数据之间添加额外的空行
+	pdf.Ln(5) // Add an extra empty line between video info and analysis data
 
-	// 将 VideoAnalysis 字段添加到 PDF
-	addDataToPDF("视频分析ID", fmt.Sprintf("%d", analysis.ID))
-	addDataToPDF("创建人 ID", fmt.Sprintf("%d", analysis.UploaderID))
-	addDataToPDF("视频 URL", analysis.VideoURL)
-	addDataToPDF("图片 URL", analysis.ImageURL)
-	// 为其他字段重复上面的步骤...
+	// Add VideoAnalysis fields to PDF
+	addDataToPDF("Video Analysis ID", fmt.Sprintf("%d", analysis.ID))
+	addDataToPDF("Creator ID", fmt.Sprintf("%d", analysis.UploaderID))
+	addDataToPDF("Video URL", analysis.VideoURL)
+	addDataToPDF("Image URL", analysis.ImageURL)
+	// Repeat for other fields...
 	report := config.GetReport()
-	// 构建文件保存路径
+	// Build file save path
 	desktopPath := filepath.Join(os.Getenv("HOME"), "Desktop", report)
-	safeFileName := strings.ReplaceAll(video.Name, " ", "_") + ".pdf" // 确保文件名是安全的
+	safeFileName := strings.ReplaceAll(video.Name, " ", "_") + ".pdf" // Ensure filename is safe
 	pdfFilePath := filepath.Join(desktopPath, safeFileName)
 
-	// 保存 PDF 文件
+	// Check and create directory before saving PDF
+	if _, err := os.Stat(desktopPath); os.IsNotExist(err) {
+		// If the folder does not exist, create it
+		err := os.MkdirAll(desktopPath, os.ModePerm)
+		if err != nil {
+			return fmt.Errorf("Unable to create folder: %v", err)
+		}
+	}
+
+	// Save the PDF file
 	return pdf.OutputFileAndClose(pdfFilePath)
 }
 
 // GetReportFilePath 返回给定报告的文件路径
 func (s VideoAnalysisService) GetReportFilePath(reportName string) (string, error) {
-	reportFolder := filepath.Join(os.Getenv("HOME"), "Desktop", "report")
+	reportFolder := filepath.Join(os.Getenv("HOME"), "Desktop", "reports")
 	reportFilePath := filepath.Join(reportFolder, reportName)
 
 	// 检查文件是否存在

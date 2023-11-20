@@ -28,7 +28,8 @@ func initProject(r *gin.Engine) {
 	videoRouter.POST("/upload", controller.Video.UploadVideo)
 	videoRouter.DELETE("/delete", controller.Video.DelVideo)
 	videoRouter.POST("/list", controller.Video.VideoList)                            //视频列表，支持模糊查询
-	videoRouter.GET("/:videoID/stream", controller.Video.PlayVideo)                  //播放视频
+	videoRouter.GET("/:videoID/download", controller.Video.DownloadVideo)            //下载视频
+	videoRouter.GET("/:videoID/stream", controller.Video.PlayVideo)                  //实时播放视频
 	videoRouter.POST("/analysis", controller.Video.AnalysisVideo)                    // 生成视频数据
 	videoRouter.POST("/report/generate", controller.Video.GenerateReport)            // 生成视频数据pdf报告
 	videoRouter.GET("/report/download/:reportName", controller.Video.DownloadReport) // 下载视频pdf报告

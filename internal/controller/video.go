@@ -6,6 +6,7 @@ import (
 	"GoDockerBuild/middleware"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -106,8 +107,7 @@ func (V VideoController) VideoList(context *gin.Context) {
 		Data: videos,
 	})
 }
-
-func (V VideoController) PlayVideo(context *gin.Context) {
+func (V VideoController) DownloadVideo(context *gin.Context) {
 	videoIDStr := context.Param("videoID")
 	videoID, err := strconv.Atoi(videoIDStr)
 	if err != nil {
@@ -130,6 +130,46 @@ func (V VideoController) PlayVideo(context *gin.Context) {
 	}
 	//可以通过访问 /play/:videoID 这个URL来播放视频
 	context.File(videoPath)
+}
+
+// PlayVideo 方法实现了视频流的处理
+func (V VideoController) PlayVideo(context *gin.Context) {
+	videoIDStr := context.Param("videoID")
+	videoID, err := strconv.Atoi(videoIDStr)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{
+			"error": "无效的视频ID",
+		})
+		return
+	}
+
+	videoPath, err := service.Video.GetVideoPathByID(videoID)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	videoFile, err := os.Open(videoPath)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{
+			"error": "无法打开视频文件",
+		})
+		return
+	}
+	defer videoFile.Close()
+
+	fileInfo, err := videoFile.Stat()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{
+			"error": "无法获取视频文件信息",
+		})
+		return
+	}
+
+	context.Header("Content-Type", "video/mp4") // 这里假设视频格式为 MP4，需要根据实际情况调整
+	http.ServeContent(context.Writer, context.Request, fileInfo.Name(), fileInfo.ModTime(), videoFile)
 }
 
 // AnalysisVideo 分析视频
