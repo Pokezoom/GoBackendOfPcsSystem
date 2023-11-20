@@ -7,23 +7,31 @@ then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-# 创建 pcs_project 文件夹
+# 创建 pcs_project 文件夹，如果已存在则跳过
 mkdir -p ~/pcs_project
 cd ~/pcs_project
 
-# 克隆 Git 项目
-git clone https://github.com/Pokezoom/GoBackendOfPcsSystem.git
+# 检查是否已存在 Git 项目，如果不存在则克隆，存在则执行 git pull
+if [ ! -d "GoBackendOfPcsSystem" ]; then
+    git clone https://github.com/Pokezoom/GoBackendOfPcsSystem.git
+else
+    cd GoBackendOfPcsSystem
+    git pull
+    cd ..
+fi
 
-# 判断处理器架构并下载安装 Golang
+# 判断处理器架构并下载安装 Golang，如果已存在则跳过
 ARCH=$(uname -m)
-if [ "$ARCH" == "x86_64" ]; then
-  # 对于 x86 架构
-  curl -OL https://go.dev/dl/go1.19.10.darwin-amd64.tar.gz
-  tar -C /usr/local -xzf go1.19.10.darwin-amd64.tar.gz
-elif [ "$ARCH" == "arm64" ]; then
-  # 对于 ARM 架构
-  curl -OL https://go.dev/dl/go1.19.10.darwin-arm64.tar.gz
-  tar -C /usr/local -xzf go1.19.10.darwin-arm64.tar.gz
+if [ ! -d "/usr/local/go" ]; then
+    if [ "$ARCH" == "x86_64" ]; then
+        # 对于 x86 架构
+        curl -OL https://go.dev/dl/go1.19.10.darwin-amd64.tar.gz
+        tar -C /usr/local -xzf go1.19.10.darwin-amd64.tar.gz
+    elif [ "$ARCH" == "arm64" ]; then
+        # 对于 ARM 架构
+        curl -OL https://go.dev/dl/go1.19.10.darwin-arm64.tar.gz
+        tar -C /usr/local -xzf go1.19.10.darwin-arm64.tar.gz
+    fi
 fi
 
 # 设置环境变量
