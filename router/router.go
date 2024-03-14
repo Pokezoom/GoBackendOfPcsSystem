@@ -1,11 +1,21 @@
+/*
+ * @Author: Su Chunyu su18237805830@163.com
+ * @Date: 2024-03-09 15:55:58
+ * @LastEditTime: 2024-03-10 16:37:57
+ * @LastEditors: Suchunyu
+ * @Description:
+ * @FilePath: \GoBackendOfPcsSystem\router\router.go
+ * Copyright (c) 2024 by Suchunyu, All Rights Reserved.
+ */
 package router
 
 import (
 	"GoDockerBuild/internal/controller"
 	"GoDockerBuild/middleware"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
 // Router 注册路由
@@ -38,6 +48,17 @@ func initProject(r *gin.Engine) {
 	/*
 		<———————————————user相关的路由————————————————>
 	*/
+	userRouter := r.Group("/user")
+	userRouter.POST("/create", controller.User.RegisterUser) // 创建用户
+	// userRouter.DELETE("/delete/:userID", controller.User.DeleteUser) // 删除用户
+	// userRouter.GET("/list", controller.User.UserList)                // 用户列表
+	userRouter.POST("/login", controller.User.LoginUser) // 用户登录
+	// userRouter.PUT("/update/:userID", middleware.AuthUser(), controller.User.UpdateUser)       // 更新用户信息
+	// userRouter.POST("/change-password", middleware.AuthUser(), controller.User.ChangePassword) // 修改密码
+	// userRouter.POST("/reset-password", controller.User.ResetPassword)                          // 重置密码
+	// userRouter.GET("/detail/:userID", middleware.AuthUser(), controller.User.UserDetail)       // 用户详情
+
+	logrus.Debug("路由注册完成")
 
 	logrus.Debug("路由注册完成")
 }
