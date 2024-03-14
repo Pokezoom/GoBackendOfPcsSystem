@@ -13,16 +13,17 @@ CREATE TABLE video (
 );
 
 CREATE TABLE user (
-                      userId INT PRIMARY KEY AUTO_INCREMENT,
-                      name VARCHAR(255) NOT NULL UNIQUE,
-                      password VARCHAR(255) NOT NULL,
-                      email VARCHAR(255),
-                      phone_number VARCHAR(20),
-                      user_type ENUM('1', '2', '3') NOT NULL,
-                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                      deleted TINYINT(1) DEFAULT 0
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    NAME VARCHAR(255) NOT NULL UNIQUE,
+    PASSWORD VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    phone_number VARCHAR(20),
+    user_type VARCHAR(255) NOT NULL, -- 将 user_type 定义为 VARCHAR 类型
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted TINYINT(1) DEFAULT 0
 );
+
 
 CREATE TABLE video_analysis (
                                 id INT PRIMARY KEY AUTO_INCREMENT,
