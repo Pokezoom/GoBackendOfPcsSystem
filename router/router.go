@@ -12,7 +12,9 @@ package router
 import (
 	"GoDockerBuild/internal/controller"
 	"GoDockerBuild/middleware"
+	"github.com/gin-contrib/cors"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -25,6 +27,17 @@ func Router(r *gin.Engine) {
 }
 func initProject(r *gin.Engine) {
 	r.Use(middleware.RecoveryMiddleware())
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},                                                                                            // 允许任何源
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},                                             // 允许的方法
+		AllowHeaders:     []string{"Origin", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization"}, // 允许的头信息
+		ExposeHeaders:    []string{"Content-Length"},                                                                               // 公开的头信息
+		AllowCredentials: true,                                                                                                     // 凭证共享
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "http://localhost:8080"
+		},
+		MaxAge: 12 * time.Hour, // 预检请求的结果缓存最大时长
+	}))
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "hello World!")
 	})
