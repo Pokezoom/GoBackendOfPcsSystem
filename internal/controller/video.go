@@ -183,15 +183,16 @@ func (V VideoController) AnalysisVideo(context *gin.Context) {
 		})
 		return
 	}
-	res, err := service.VideoAnalysis.AnalysisVideo(context, req)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, middleware.Response{
-			Code: http.StatusBadRequest,
-			Msg:  err.Error(),
-			Data: nil,
-		})
-		return
-	}
+	//res, err := service.VideoAnalysis.AnalysisVideo(context, req)
+	res := "ok"
+	//if err != nil {
+	//	context.JSON(http.StatusBadRequest, middleware.Response{
+	//		Code: http.StatusBadRequest,
+	//		Msg:  err.Error(),
+	//		Data: nil,
+	//	})
+	//	return
+	//}
 	context.JSON(http.StatusOK, middleware.Response{
 		Code: 200,
 		Msg:  "ok",
@@ -210,17 +211,15 @@ func (v VideoController) GenerateReport(context *gin.Context) {
 		})
 		return
 	}
-
-	err := service.VideoAnalysis.GeneratePDFReport(context, req)
-	if err != nil {
-		context.JSON(http.StatusInternalServerError, middleware.Response{
-			Code: http.StatusInternalServerError,
-			Msg:  err.Error(),
-			Data: nil,
-		})
-		return
-	}
-
+	//err := service.VideoAnalysis.GeneratePDFReport(context, req)
+	//if err != nil {
+	//	context.JSON(http.StatusInternalServerError, middleware.Response{
+	//		Code: http.StatusInternalServerError,
+	//		Msg:  err.Error(),
+	//		Data: nil,
+	//	})
+	//	return
+	//}
 	context.JSON(http.StatusOK, middleware.Response{
 		Code: 200,
 		Msg:  "报告生成成功",
