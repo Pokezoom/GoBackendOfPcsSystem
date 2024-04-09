@@ -14,6 +14,7 @@ import (
 	"GoDockerBuild/internal/Dao/tables"
 	"GoDockerBuild/internal/mode"
 	"errors"
+	"fmt"
 )
 
 var User UserService
@@ -34,6 +35,7 @@ func (s UserService) CreateUser(req mode.RegistrationReq) (int, error) {
 		UserType:    req.UserType,
 	}
 
+	fmt.Printf("newUser:%+v", newUser)
 	// 使用UserData的CreateUser方法创建用户
 	userID, err := s.data.CreateUser(newUser)
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"GoDockerBuild/internal/mode"
 	"GoDockerBuild/internal/service"
 	"GoDockerBuild/middleware"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
@@ -32,6 +33,7 @@ func (V VideoController) UploadVideo(context *gin.Context) {
 	req.AcademicYear = context.PostForm("academicYear")
 	req.Subject = context.PostForm("subject")
 	req.Duration, _ = strconv.Atoi(context.PostForm("duration"))
+	fmt.Printf("ZF [upload] req:%+v \n", req)
 
 	// TODO: 这里可以添加字段验证逻辑
 
@@ -85,6 +87,7 @@ func (V VideoController) DelVideo(context *gin.Context) {
 func (V VideoController) VideoList(context *gin.Context) {
 	var req mode.VideoListReq
 	if err := context.ShouldBindJSON(&req); err != nil {
+		fmt.Println(err.Error())
 		context.JSON(http.StatusBadRequest, middleware.Response{
 			Code: http.StatusBadRequest,
 			Msg:  err.Error(),
