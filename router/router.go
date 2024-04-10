@@ -57,7 +57,6 @@ func initProject(r *gin.Engine) {
 	videoRouter.POST("/report/generate", controller.Video.GenerateReport)            // 生成视频数据pdf报告
 	videoRouter.GET("/report/download/:reportName", controller.Video.DownloadReport) // 下载视频pdf报告
 	videoRouter.POST("/analysis/list", controller.Video.VideoAnalysisList)
-
 	/*
 		<———————————————user相关的路由————————————————>
 	*/

@@ -28,14 +28,14 @@ type VideoService struct {
 
 // 通过ID删除视频（软删除）
 func (s VideoService) DeleteVideoById(videoId int, userId int) error {
-	video, err := s.data.GetVideoById(videoId)
+	_, err := s.data.GetVideoById(videoId)
 	if err != nil {
 		return err
 	}
-	if video.UserID != userId {
-		logrus.Infof("%d用户删除视频%d失败，原因没有权限", userId, videoId)
-		return errors.New("该用户没有删除视频的权限")
-	}
+	//if video.UserID != userId {
+	//	logrus.Infof("%d用户删除视频%d失败，原因没有权限", userId, videoId)
+	//	return errors.New("该用户没有删除视频的权限")
+	//}
 	logrus.Infof("%d用户成功删除了视频%d", userId, videoId)
 	return s.data.DeleteVideoById(videoId)
 }

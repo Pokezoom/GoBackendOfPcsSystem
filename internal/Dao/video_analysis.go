@@ -51,6 +51,5 @@ func (d VideoAnalysisData) GetVideoAnalysisList(req mode.VideoAnalysisListReq) (
 	if err := query.Limit(req.PageSize).Offset((req.PageNum - 1) * req.PageSize).Find(&analyses).Error; err != nil {
 		return nil, err
 	}
-
 	return analyses, nil
 }
