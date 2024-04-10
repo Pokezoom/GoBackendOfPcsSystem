@@ -30,12 +30,16 @@ type VideoListReq struct {
 	EndDate   string `json:"endDate,omitempty"`
 }
 type VideoAnalysisReq struct {
-	UserID          int `json:"userId"` //当前用户
-	VideoId         int `json:"videoId"`
-	FacialData      int `json:"facialData"` // 0-不需要，1-需要 以下相同
-	FatigueData     int `json:"fatigueData"`
-	LimbData        int `json:"limbData"`
-	StudyStatusData int `json:"studyStatusData"`
+	UserID          int    `json:"userId"` //当前用户
+	VideoId         int    `json:"videoId"`
+	FacialData      int    `json:"facialData"` // 0-不需要，1-需要 以下相同
+	FatigueData     int    `json:"fatigueData"`
+	LimbData        int    `json:"limbData"`
+	StudyStatusData int    `json:"studyStatusData"`
+	Subject         string `json:"subject"`
+	Class           string `json:"class"`
+	Name            string `json:"name"`
+	AcademicYear    string `json:"academicYear"`
 }
 type GenerateReport struct {
 	UserID          int `json:"userId"` //当前用户
@@ -43,8 +47,13 @@ type GenerateReport struct {
 }
 
 type VideoAnalysisListReq struct {
-	PageSize int `json:"pageSize"`
-	PageNum  int `json:"pageNum"`
+	PageSize  int    `json:"pageSize"`
+	PageNum   int    `json:"pageNum"`
+	Name      string `json:"name,omitempty"`
+	Class     string `json:"class,omitempty"`
+	Subject   string `json:"subject,omitempty"`
+	StartDate string `json:"startDate,omitempty"`
+	EndDate   string `json:"endDate,omitempty"`
 }
 type VideoAnalysisRes struct {
 	ID                int            `json:"id" gorm:"primaryKey;autoIncrement;comment:分析ID，主键"`

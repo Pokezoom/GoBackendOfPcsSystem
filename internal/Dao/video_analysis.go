@@ -46,7 +46,22 @@ func (d VideoAnalysisData) UpdateVideoAnalysis(videoAnalysis tables.VideoAnalysi
 func (d VideoAnalysisData) GetVideoAnalysisList(req mode.VideoAnalysisListReq) ([]tables.VideoAnalysis, error) {
 	var analyses []tables.VideoAnalysis
 	query := d.g.GDB().Table("video_analysis").Where("deleted = ?", 0)
-
+	//支持模糊查询
+	if req.Name != "" {
+		query = query.Where("name LIKE ?", "%"+req.Name+"%")
+	}
+	if req.Subject != "" {
+		query = query.Where("subject = ?", req.Subject)
+	}
+	if req.Class != "" {
+		query = query.Where("class = ?", req.Class)
+	}
+	if req.StartDate != "" {
+		query = query.Where("created_at >= ?", req.StartDate)
+	}
+	if req.EndDate != "" {
+		query = query.Where("created_at <= ?", req.EndDate)
+	}
 	// 分页查询
 	if err := query.Limit(req.PageSize).Offset((req.PageNum - 1) * req.PageSize).Find(&analyses).Error; err != nil {
 		return nil, err

@@ -38,5 +38,9 @@ CREATE TABLE video_analysis (
                                 uploader_id INT NOT NULL DEFAULT 0,
                                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                deleted TINYINT(1) DEFAULT 0
+                                deleted TINYINT(1) DEFAULT 0,
+                                name VARCHAR(255) NOT NULL UNIQUE,
+                                class VARCHAR(50),
+                                academic_year VARCHAR(50),
+                                subject VARCHAR(50)
 );

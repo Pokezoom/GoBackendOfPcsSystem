@@ -11,11 +11,11 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jung-kurt/gofpdf"
-	"golang.org/x/sync/errgroup"
 	"gorm.io/datatypes"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 var VideoAnalysis VideoAnalysisService
@@ -38,57 +38,81 @@ func (s VideoAnalysisService) DeleteVideoAnalysisById(ctx context.Context, id in
 }
 
 // 生成视频分析数据
-func (s VideoAnalysisService) AnalysisVideo(ctx *gin.Context, req mode.VideoAnalysisReq) (tables.VideoAnalysis, error) {
-	var res tables.VideoAnalysis
-	video, err := s.videoData.GetVideoById(req.VideoId)
-	if err != nil || video.ID == 0 || video.URL == "" {
-		return res, err
+func (s VideoAnalysisService) AnalysisVideo(ctx *gin.Context, req mode.VideoAnalysisReq) (string, error) {
+	//修改视频标签
+	err := s.videoData.UpdateVideo(tables.Video{
+		ID:           req.VideoId,
+		Name:         req.Name,
+		Subject:      req.Subject,
+		Class:        req.Class,
+		AcademicYear: req.AcademicYear,
+	})
+	if err != nil {
+		return "", err
 	}
-	// 创建一个errgroup
-	G, ctx2 := errgroup.WithContext(ctx)
+	res := tables.VideoAnalysis{
+		Name:         req.Name,
+		UploaderID:   req.UserID,
+		VideoID:      req.VideoId,
+		Subject:      req.Subject,
+		Class:        req.Class,
+		AcademicYear: req.AcademicYear,
+		CreatedAt:    time.Now(),
+		Deleted:      false,
+		ID:           0,
+	}
 
-	// 根据请求字段调用相应接口
-	if req.FacialData == 1 {
-		G.Go(func() error {
-			data, err := s.FacialData(ctx2)
-			if err == nil {
-				res.FacialData = data
-			}
-			return err
-		})
-	}
-	if req.FatigueData == 1 {
-		G.Go(func() error {
-			data, err := s.FatigueData(ctx2)
-			if err == nil {
-				res.FatigueData = data
-			}
-			return err
-		})
-	}
-	if req.LimbData == 1 {
-		G.Go(func() error {
-			data, err := s.LimbData(ctx2)
-			if err == nil {
-				res.LimbData = data
-			}
-			return err
-		})
-	}
-	// 等待所有goroutine完成,这里记得改    应该是err != nil ,现在为了调试所以这样写
-	if err := G.Wait(); err == nil {
-		return res, err
-	}
-	res.VideoID = video.ID
-	res.UploaderID = req.UserID
-	res.VideoURL = video.URL
-	res.ImageURL = "" //图片展示用，这个后续要做
 	// 存数据
 	err = s.data.CreateVideoAnalysis(res)
 	if err != nil {
-		return res, err
+		return "err", err
 	}
-	return res, nil
+	return "ok", nil
+	//var res tables.VideoAnalysis
+	//video, err := s.videoData.GetVideoById(req.VideoId)
+	//if err != nil || video.ID == 0 || video.URL == "" {
+	//	return res, err
+	//}
+	//// 创建一个errgroup
+	//G, ctx2 := errgroup.WithContext(ctx)
+	//
+	//// 根据请求字段调用相应接口
+	//if req.FacialData == 1 {
+	//	G.Go(func() error {
+	//		data, err := s.FacialData(ctx2)
+	//		if err == nil {
+	//			res.FacialData = data
+	//		}
+	//		return err
+	//	})
+	//}
+	//if req.FatigueData == 1 {
+	//	G.Go(func() error {
+	//		data, err := s.FatigueData(ctx2)
+	//		if err == nil {
+	//			res.FatigueData = data
+	//		}
+	//		return err
+	//	})
+	//}
+	//if req.LimbData == 1 {
+	//	G.Go(func() error {
+	//		data, err := s.LimbData(ctx2)
+	//		if err == nil {
+	//			res.LimbData = data
+	//		}
+	//		return err
+	//	})
+	//}
+	//// 等待所有goroutine完成,这里记得改    应该是err != nil ,现在为了调试所以这样写
+	//if err := G.Wait(); err == nil {
+	//	return res, err
+	//}
+	//res.VideoID = video.ID
+	//res.UploaderID = req.UserID
+	//res.VideoURL = video.URL
+	//res.ImageURL = "" //图片展示用，这个后续要做
+
 }
 
 // 学生表情
